@@ -1,41 +1,41 @@
 import streamlit as st
 import google.generativeai as genai
 
-# 1. Configuración de la página
-st.set_page_config(page_title="Songwriter AI Pro", page_icon="🎼")
+# Configuración de la página
+st.set_page_config(page_title="Songwriter AI", page_icon="🎼")
 
-# 2. Conexión con la llave (Secrets)
-if "GOOGLE_API_KEY" in st.secrets:
-    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-    # FORZAMOS LA VERSIÓN ESTABLE PARA EVITAR EL ERROR 404
-    model = genai.GenerativeModel('gemini-1.5-flash')
-else:
-    st.error("⚠️ Falta la llave en los Secrets de Streamlit.")
-
-# 3. Interfaz de usuario
+# Título visual
 st.title("🎼 Songwriter AI Pro")
-st.write("Crea letras de canciones originales en segundos.")
+st.write("Genera letras de canciones al instante.")
 
+# Conexión con la llave (Secrets)
+if "GOOGLE_API_KEY" in st.secrets:
+    try:
+        genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+        # Usamos el modelo más estable
+        model = genai.GenerativeModel('gemini-1.5-flash')
+    except Exception as e:
+        st.error(f"Error de configuración: {e}")
+else:
+    st.error("⚠️ Falta la llave en Secrets. Ve a Settings -> Secrets y agrégala.")
+
+# Entradas de texto
 genero = st.text_input("Género Musical", value="Cumbia")
-tema = st.text_area("¿De qué quieres que trate la canción?", placeholder="Ejemplo: El amor entre Alberto y Marissa...")
+tema = st.text_area("¿De qué trata la canción?", placeholder="Ejemplo: Una historia de amor en el campo...")
 
-# 4. Botón de acción
+# Botón principal
 if st.button("Componer Canción ✨", use_container_width=True):
     if tema:
-        with st.spinner("🚀 Escribiendo tu éxito..."):
+        with st.spinner("🚀 Escribiendo..."):
             try:
-                # La petición al modelo
-                prompt = f"Escribe una canción de {genero} que hable de: {tema}. Que tenga rimas y buen ritmo."
-                response = model.generate_content(prompt)
-                
-                st.markdown("---")
+                # Petición directa y sencilla
+                response = model.generate_content(f"Escribe una canción de {genero} sobre: {tema}. Con estrofas y coro.")
                 st.markdown("### 📝 Tu Canción:")
                 st.write(response.text)
                 st.balloons()
             except Exception as e:
-                # Si sale el error 404, aquí te dirá cómo arreglarlo
-                st.error(f"Hubo un error: {e}")
-                st.info("Si el error dice '404', ve a 'Manage app' -> 'Reboot App' para actualizar el servidor.")
+                st.error(f"Hubo un detalle: {e}")
+                st.info("Si el error persiste, dale a 'Reboot App' en el menú de la derecha.")
     else:
-        st.warning("Escribe un tema para poder empezar.")
+        st.warning("Por favor escribe el tema de la canción.")
         
